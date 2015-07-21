@@ -7,11 +7,7 @@ def get_hg_status():
     has_missing_files = False
     output = subprocess.Popen(['hg', 'status'],
             stdout=subprocess.PIPE).communicate()[0]
-    try:
-        lines = output.split('\n')
-    except TypeError:  # Python 3
-        lines = output.decode().split('\n')
-    for line in lines:
+    for line in output.split('\n'):
         if line == '':
             continue
         elif line[0] == '?':
