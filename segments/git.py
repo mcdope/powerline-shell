@@ -1,30 +1,18 @@
-"""
-Add the Git segment to the Powerline-shell prompt
-"""
-import os
 import re
 import subprocess
 
-
 def get_git_status():
-    """
-    Get the status of the Git repository
-    """
     has_pending_commits = True
     has_untracked_files = False
     origin_position = ""
     output = subprocess.Popen(['git', 'status', '--ignore-submodules'],
                               env={"LANG": "C", "HOME": os.getenv("HOME")},
                               stdout=subprocess.PIPE).communicate()[0]
-<<<<<<< HEAD
     try:
         lines = output.split('\n')
     except TypeError:  # Python 3
         lines = output.decode().split('\n')
     for line in lines:
-=======
-    for line in output.split('\n'):
->>>>>>> fad733e... Add a fast-fail path, formatting fixups
         origin_status = re.findall(
             r"Your branch is (ahead|behind).*?(\d+) comm", line)
         diverged_status = re.findall(r"and have (\d+) and (\d+) different commits each", line)
@@ -45,23 +33,11 @@ def get_git_status():
 
 
 def add_git_segment():
-    """
-    Add the Git segment to the Powerline-shell prompt
+    # See http://git-blame.blogspot.com/2013/06/checking-current-branch-programatically.html
+    p = subprocess.Popen(['git', 'symbolic-ref', '-q', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = p.communicate()
 
-    This version of the function fails quickly
-    """
-    oldcwd = os.getcwd()
-    # Fail quickly if .git is not present in cwd and parents
-    found = False
-    pathhead, pathtail = oldcwd, '.'
-    while pathtail != '':
-        if os.access(".git", os.R_OK):
-            found = True
-            break
-        pathhead, pathtail = os.path.split(pathhead)
-
-    # If we aren't anywhere inside a Git repository, bail
-    if not found:
+    if 'Not a git repo' in err:
         return
 
     try:
@@ -70,31 +46,29 @@ def add_git_segment():
         p = subprocess.Popen(['git', 'symbolic-ref', '-q', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
 
-        if 'Not a git repo' in err:
-            return
+    if 'Not a git repo' in str(err):
+        return
 
-        if out:
-            branch = out[len('refs/heads/'):].rstrip()
-        else:
-            branch = '(Detached)'
+    has_pending_commits, has_untracked_files, origin_position = get_git_status()
+    branch += origin_position
+    if has_untracked_files:
+        branch += u' \u271A'
 
-        has_pending_commits, has_untracked_files, origin_position = get_git_status()
+    has_pending_commits, has_untracked_files, origin_position = get_git_status()
+    try:
         branch += origin_position
-        if has_untracked_files:
-            branch += ' +'
+    except TypeError:
+        branch = branch.decode()
+        branch += origin_position
+    if has_untracked_files:
+        branch += ' +'
 
-        bg = Color.REPO_CLEAN_BG
-        fg = Color.REPO_CLEAN_FG
-        if has_pending_commits:
-            bg = Color.REPO_DIRTY_BG
-            fg = Color.REPO_DIRTY_FG
 
-        powerline.append(' %s ' % branch, fg, bg)
+    powerline.append(' %s ' % branch, fg, bg)
 
-    except OSError:
-        pass
-    except subprocess.CalledProcessError:
-        pass
-    finally:  # Execute unconditionally, regardless of what happened in the try/except blocks
-        os.chdir(oldcwd)
-
+try:
+    add_git_segment()
+except OSError:
+    pass
+except subprocess.CalledProcessError:
+    pass
