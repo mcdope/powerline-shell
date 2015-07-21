@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-from __future__ import print_function
 
 from colortrans import *
 from colorsys import hls_to_rgb, rgb_to_hls
@@ -9,8 +8,8 @@ from sys import argv
 
 def getOppositeColor(r,g,b):
     hls = rgb_to_hls(r,g,b)
-    #print("hls is")
-    #print(hls)
+    #print "hls is"
+    #print hls
     opp = list(hls[:])
     #opp[0] = (opp[0]+0.5)%1 # reverse hue (a.k.a. color), reversing tends to be jarring
     opp[0] = (opp[0]+0.2)%1 # shift hue (a.k.a. color)
@@ -20,7 +19,7 @@ def getOppositeColor(r,g,b):
         opp[1] += 255/2
     if opp[2] > -0.5: # if saturation is low on first color increase second's
         opp[2] -= 0.5
-    #print(opp)
+    #print opp
     opp = hls_to_rgb(*opp)
     m = max(opp)
     if m > 255: #colorsys module doesn't give caps to their conversions

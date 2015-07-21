@@ -6,13 +6,8 @@ def get_git_status():
     has_untracked_files = False
     origin_position = ""
     output = subprocess.Popen(['git', 'status', '--ignore-submodules'],
-                              env={"LANG": "C", "HOME": os.getenv("HOME")},
-                              stdout=subprocess.PIPE).communicate()[0]
-    try:
-        lines = output.split('\n')
-    except TypeError:  # Python 3
-        lines = output.decode().split('\n')
-    for line in lines:
+            env={"LANG": "C", "HOME": os.getenv("HOME")}, stdout=subprocess.PIPE).communicate()[0]
+    for line in output.split('\n'):
         origin_status = re.findall(
             r"Your branch is (ahead|behind).*?(\d+) comm", line)
         diverged_status = re.findall(r"and have (\d+) and (\d+) different commits each", line)
@@ -40,28 +35,25 @@ def add_git_segment():
     if 'Not a git repo' in err:
         return
 
-    try:
-        os.chdir(pathhead)
-        # See http://git-blame.blogspot.com/2013/06/checking-current-branch-programatically.html
-        p = subprocess.Popen(['git', 'symbolic-ref', '-q', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = p.communicate()
-
-    if 'Not a git repo' in str(err):
-        return
+    branch = u'\ue0a0 '
+    if out:
+        branch += out[len('refs/heads/'):].rstrip()
+    else:
+        branch += '(Detached)'
 
     has_pending_commits, has_untracked_files, origin_position = get_git_status()
     branch += origin_position
     if has_untracked_files:
         branch += u' \u271A'
 
-    has_pending_commits, has_untracked_files, origin_position = get_git_status()
-    try:
-        branch += origin_position
-    except TypeError:
-        branch = branch.decode()
-        branch += origin_position
-    if has_untracked_files:
-        branch += ' +'
+    bg = Color.REPO_CLEAN_BG
+    fg = Color.REPO_CLEAN_FG
+    if has_pending_commits:
+        bg = Color.REPO_DIRTY_BG
+        fg = Color.REPO_DIRTY_FG
+        branch += u' \u2718'
+    else:
+        branch += u' \u2714'
 
 
     powerline.append(' %s ' % branch, fg, bg)
