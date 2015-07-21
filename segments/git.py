@@ -55,7 +55,8 @@ def add_git_segment():
             break
         pathhead, pathtail = os.path.split(pathhead)
 
-    if 'Not a git repo' in str(err):
+    # If we aren't anywhere inside a Git repository, bail
+    if not found:
         return
 
     branch = u'\ue0a0 '
