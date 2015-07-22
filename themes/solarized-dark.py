@@ -17,7 +17,7 @@ class Color(DefaultColor):
 
     REPO_CLEAN_FG = 14
     REPO_CLEAN_BG = 0
-	REPO_READY_FG = 11
+    REPO_READY_FG = 11
     REPO_READY_BG = 0
     REPO_DIRTY_FG = 3
     REPO_DIRTY_BG = 0
