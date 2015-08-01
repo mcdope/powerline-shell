@@ -59,19 +59,21 @@ There are a few optional arguments which can be seen by running `powerline-shell
 ```
 
 ### Bash:
-Add the following to your `.bashrc`:
+Add the following to your `.bashrc` (or `.profile` on Mac):
 
         function _update_ps1() {
-           export PS1="$(~/powerline-shell.py $? 2> /dev/null)"
+           PS1="$(~/powerline-shell.py $? 2> /dev/null)"
         }
 
-        export PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+        if [ "$TERM" != "linux" ]; then
+            PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+        fi
 
 ### ZSH:
 Add the following to your `.zshrc`:
 
         function powerline_precmd() {
-          export PS1="$(~/powerline-shell.py $? --shell zsh 2> /dev/null)"
+          PS1="$(~/powerline-shell.py $? --shell zsh 2> /dev/null)"
         }
 
         function install_powerline_precmd() {
@@ -83,7 +85,9 @@ Add the following to your `.zshrc`:
           precmd_functions+=(powerline_precmd)
         }
 
-        install_powerline_precmd
+        if [ "$TERM" != "linux" ]; then
+            install_powerline_precmd
+        fi
 
 ### Fish:
 Redefine `fish_prompt` in ~/.config/fish/config.fish:
@@ -105,10 +109,10 @@ prompt immediately.
 ### Contributing new types of segments
 
 The `segments` directory contains python scripts which are injected as is into
-a single file `powerline-shell.py.template`. Each segment script defines a
-function that inserts one or more segments into the prompt. If you want to add a
-new segment, simply create a new file in the segments directory and add its name
-to the `config.py` file at the appropriate location.
+a single file `powerline_shell_base.py`. Each segment script defines a function
+that inserts one or more segments into the prompt. If you want to add a new
+segment, simply create a new file in the segments directory and add its name to
+the `config.py` file at the appropriate location.
 
 Make sure that your script does not introduce new globals which might conflict
 with other scripts. Your script should fail silently and run quickly in any
@@ -130,3 +134,20 @@ A script for testing color combinations is provided at `themes/colortest.py`.
 Note that the colors you see may vary depending on your terminal. When designing
 a theme, please test your theme on multiple terminals, especially with default
 settings.
+
+# Changes
+
+2015-07-31
+
+* The current working directory no longer follows symbolic links
+* New `exit_code` segment ([@disruptek](https://github.com/milkbikis/powerline-shell/pull/129))
+
+2015-07-30
+
+* Fix ZSH root indicator ([@nkcfan](https://github.com/milkbikis/powerline-shell/pull/150))
+* Add uptime segment ([@marcioAlmada](https://github.com/milkbikis/powerline-shell/pull/139))
+
+2015-07-27
+
+* Use `python2` instead of `python` in hashbangs ([@Undeterminant](https://github.com/milkbikis/powerline-shell/pull/100))
+* Add `node_version` segment ([@mmilleruva](https://github.com/milkbikis/powerline-shell/pull/189))
