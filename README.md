@@ -53,6 +53,9 @@ There are a few optional arguments which can be seen by running `powerline-shell
                         How to display the current directory
   --cwd-max-depth CWD_MAX_DEPTH
                         Maximum number of directories to show in path
+  --cwd-max-dir-size CWD_MAX_DIR_SIZE
+                        Maximum number of letters displayed for each directory
+                        in the path
   --colorize-hostname   Colorize the hostname based on a hash of itself.
   --mode {patched,compatible,flat}
                         The characters used to make separators between
@@ -137,6 +140,13 @@ a theme, please test your theme on multiple terminals, especially with default
 settings.
 
 # Changes
+
+2015-10-02
+
+* New option (`--cwd-max-dir-size`) which allows you to limit each directory
+  that is displayed to a number of characters. This currently does not apply
+  if you are using `--cwd-mode plain`.
+  ([@mart-e](https://github.com/milkbikis/powerline-shell/pull/127))
 
 2015-08-26
 
